@@ -1,29 +1,32 @@
-int analogvalue = 0;
-double temp = 0;
+#include <Adafruit_DHT.h>
 
-void setup()
-{
-  Particle.variable("analogvalue", analogvalue);
-  Particle.variable("temp", temp);
- pinMode(A0, INPUT);
-Particle.subscribe("hook-response/temp", myHandler, MY_DEVICES);
+
+#define DHTPIN D2     // what pin I'm connected to
+#define DHTTYPE DHT11   // DHT 22  (AM2302)
+DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
+
+
+void setup() {
+  // Subscribe to the webhook response event
+  Particle.subscribe("hook-response/temp", myHandler, MY_DEVICES);
+  dht.begin();
 }
+
+
 
 void myHandler(const char *event, const char *data) {
-  // Handle the webhook response
+  // Handle the integration response
 }
-
+  
 
 
 
 void loop() {
-  
 
-  analogvalue = analogRead(A0);
+  float temperature = dht.getTempCelcius();
 
-  temp = (((analogvalue * 3.3)/4095) - 0.5) * 100;
-  
-  Particle.publish("temp", String(temp), PRIVATE);
+  String temp = String(temperature);  
+ Particle.publish("temp", temp, PRIVATE);
   delay(30000);               // Wait for 30 seconds
-
+    
 }
